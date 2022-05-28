@@ -1,16 +1,12 @@
 import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 
 public class XMLHandler extends DefaultHandler {
 
     private Voter voter;
-    private final HashMap<Voter, Integer> voterCounts;
-    private static final SimpleDateFormat birthDayFormat = new SimpleDateFormat("yyyy.MM.dd");
+    private final HashMap<Voter, Byte> voterCounts;
 
     public XMLHandler() {
         voterCounts = new HashMap<>();
@@ -18,16 +14,12 @@ public class XMLHandler extends DefaultHandler {
 
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes) {
-        try {
-            if (qName.equals("voter") && voter == null) {
-                Date birthDay = birthDayFormat.parse(attributes.getValue("birthDay"));
-                voter = new Voter(attributes.getValue("name"), birthDay);
-            } else if (qName.equals("visit") && voter != null) {
-                int count = voterCounts.getOrDefault(voter, 0);
-                voterCounts.put(voter, count + 1);
-            }
-        } catch (ParseException e) {
-            e.printStackTrace();
+        if (qName.equals("voter") && voter == null) {
+            String birthDay = attributes.getValue("birthDay");
+            voter = new Voter(attributes.getValue("name"), birthDay);
+        } else if (qName.equals("visit") && voter != null) {
+            int count = voterCounts.getOrDefault(voter, (byte) 0);
+            voterCounts.put(voter, (byte) (count + 1));
         }
     }
 
